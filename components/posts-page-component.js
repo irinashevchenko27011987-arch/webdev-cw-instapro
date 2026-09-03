@@ -24,6 +24,8 @@ export function renderPostsPageComponent({ appEl }) {
 
     return `
     <li class="post">
+     
+    
       <div class="post-header" data-user-id="${userId}">
         <img src="${avatar}" class="post-header__user-image" alt="${name}">
         <p class="post-header__user-name">${name}</p>
@@ -32,21 +34,21 @@ export function renderPostsPageComponent({ appEl }) {
       <div class="post-image-container">
         <img src="${post.imageUrl}" class="post-image" alt="Фото поста">
       </div>
-
+      <div class="post-actions">
+      <button class="like-button" data-post-id="${post.id}" data-is-liked="${isLiked}">
+        <img src="${likeImgSrc}" class="like-icon" alt="Лайк">
+        <span class="like-text">Нравится:</span>
+        <span class="like-count">${likesCount}</span>
+      </button>
+    </div>
       <p class="post-text">
         <span class="user-name">${name}</span>
-        ${post.description || ""}
+      :"${post.description || ""}"
       </p>
 
       <div class="post-meta">
         <small class="post-date">${timeAgo}</small>
-        
-        
-        <button class="like-button" data-post-id="${post.id}" data-is-liked="${isLiked}">
-          <img src="${likeImgSrc}" class="like-icon" alt="Лайк">
-          <span class="like-count">${likesCount}</span>
-        </button>
-      </div>
+       
     </li>
     `;
   }
