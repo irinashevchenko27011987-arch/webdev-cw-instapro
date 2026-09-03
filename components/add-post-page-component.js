@@ -12,7 +12,7 @@ export function renderAddPostPageComponent({ appEl, onAddPostClick }) {
             <div id="upload-photo"></div>
             <label>
               Опишите фотографию:
-              <textarea class="input textarea" rows="4"></textarea>
+              <textarea class="input textarea" rows="4" required></textarea>
             </label>
             <button class="button" id="add-button">Добавить пост</button>
           </div>
@@ -47,6 +47,11 @@ export function renderAddPostPageComponent({ appEl, onAddPostClick }) {
       addButton.addEventListener("click", () => {
         const description = textarea.value.trim();
 
+
+        if (!uploadedFileUrl) {
+          alert("Не указано фото");
+          return;
+        }
         if (!description) {
           alert("Пожалуйста, добавьте описание к фото");
           return;

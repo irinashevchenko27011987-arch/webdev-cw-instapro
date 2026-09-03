@@ -67,11 +67,38 @@ export const goToPage = (newPage, data) => {
     }
 
     if (newPage === USER_POSTS_PAGE) {
-      // @@TODO: реализовать получение постов юзера из API
-      console.log("Открываю страницу пользователя: ", data.userId);
-      page = USER_POSTS_PAGE;
-      posts = [];
-      return renderApp();
+      const { userId } = data || {};
+      if (!userId) {
+        goToPage(POSTS_PAGE);
+        return;
+      }
+    
+      page = LOADING_PAGE;
+      renderApp();
+    
+      const token = getToken();
+      const baseHost = "https://webdev-hw-api.vercel.app";
+      const personalKey = "prod";
+      const userPostsHost = `${baseHost}/api/v1/${personalKey}/instapro/user-posts/${userId}`;
+    
+      return fetch(userPostsHost, {
+        method: "GET",
+        headers: {
+          Authorization: token,
+        },
+      })
+        .then((response) => {
+          if (response.status === 401) {
+            throw new Error("Нет авторизации");
+          }
+          return response.json();
+        })
+        .then((data) => {
+          page = USER_POSTS_PAGE;
+          posts = data.posts || [];
+          renderApp();
+        })
+       
     }
 
     page = newPage;
@@ -110,9 +137,39 @@ const renderApp = () => {
     return renderAddPostPageComponent({
       appEl,
       onAddPostClick({ description, imageUrl }) {
-        // @TODO: реализовать добавление поста в API
-        console.log("Добавляю пост...", { description, imageUrl });
-        goToPage(POSTS_PAGE);
+        if (!user) {
+          goToPage(AUTH_PAGE);
+          return;
+        }
+  
+        const token = `Bearer ${user.token}`;
+        const baseHost = "https://webdev-hw-api.vercel.app";
+        const personalKey = "prod";
+        const postsHost = `${baseHost}/api/v1/${personalKey}/instapro`;
+  
+        fetch(postsHost, {
+          method: "POST",
+          headers: {
+             Authorization: token,
+          },
+          body: JSON.stringify({
+            description,
+            imageUrl,
+          }),
+        })
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("Не удалось добавить пост ");
+            }
+            return response.json();
+          })
+          .then(() => {
+             goToPage(POSTS_PAGE);
+          })
+          .catch((error) => {
+            console.error(error);
+            alert("Ошибка при добавлении поста");
+          });
       },
     });
   }
@@ -124,9 +181,7 @@ const renderApp = () => {
   }
 
   if (page === USER_POSTS_PAGE) {
-    // @TODO: реализовать страницу с фотографиями отдельного пользвателя
-    appEl.innerHTML = "Здесь будет страница фотографий пользователя";
-    return;
+    return renderPostsPageComponent({ appEl });
   }
 };
 
